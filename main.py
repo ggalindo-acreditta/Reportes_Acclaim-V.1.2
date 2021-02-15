@@ -100,29 +100,3 @@ for c in range(i):
     print("Se esta cargando el proceso para la organizacion #"+str(c))
     print(nameOrg[c])
     respuesta = lectura_Acclaim(token[c],id_org[c])
-    orgname[c] = nameOrg[c]
-    orgnum_accept_badges[c] = respuesta[0]
-    orgnum_pendin_badges[c] = respuesta[1]
-    orgnum_reject_badges[c] = respuesta[2]
-
-
-
-    
-print("--------------------------------------------------------")
-print("Generando informe: Espere un momento")
-time.sleep(5)
-    
-with open ('informe.csv','w') as f:
-    writer = csv.DictWriter(f, fieldnames=["Organizacion", "Accept","Pending","Rejected", "Total_Emitidas"])
-    writer.writeheader()
-    c=0
-    for c in range(i):
-      if c!=0:
-        total = orgnum_accept_badges[c] + orgnum_pendin_badges[c] + orgnum_reject_badges[c]
-        writer.writerow({'Organizacion':orgname[c],'Accept': orgnum_accept_badges[c], 'Pending':orgnum_pendin_badges[c], 'Rejected':orgnum_reject_badges[c],'Total_Emitidas':total})
-    f.close()
-
-print("--------------------------------------------------------")
-print("informe generado satisfactoriamente")
-    
-    
