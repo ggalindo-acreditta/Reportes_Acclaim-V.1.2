@@ -39,6 +39,7 @@ print("--------------------------------------------------------")
 def lectura_Acclaim(acclaim_token,idOrg):
   next_page = True
   resp_array = [0, 0, 0]
+  historical_badges =[]
   req_url = 'https://api.youracclaim.com/v1/organizations/'+idOrg+'/high_volume_issued_badge_search'
   
   while next_page:
@@ -52,12 +53,16 @@ def lectura_Acclaim(acclaim_token,idOrg):
 
       for i in range(0,longitud_resp_data1):
           badge1 = data1[i]
+          dict_badge = {"fecha": badge1["issued_at"], "state": None}
           if badge1["state"] == "accepted":
               resp_array[0] += 1
+              dict_badge["state"]="accepted"
           if badge1["state"] == "pending":
               resp_array[1] += 1
+              dict_badge["state"]="pending"
           if badge1["state"] == "rejected":
               resp_array[2] += 1
+              dict_badge["state"]="rejected"
 
       metada1 = resp_json["metadata"]
       if metada1["next_page_url"] is None:
