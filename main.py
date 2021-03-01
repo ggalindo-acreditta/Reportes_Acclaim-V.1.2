@@ -101,6 +101,7 @@ def ordenar_historial(historico, bandaIn=1):
         c3["Total Emitidas"]=k1
         k2 = (c3["aceptadas"]*100)/k1
         c3["% Aceptadas"]=k2
+        
     
     print(master_table)
         
