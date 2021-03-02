@@ -1,6 +1,8 @@
 import csv
 import requests
 import time
+import random
+
 
 nameOrg = [None]*100
 id_org = [None] * 100
@@ -34,6 +36,47 @@ print("/////////////////////////////////////////////////////////")
 print("cargando informacion proporcionada en el csv")
 print("--------------------------------------------------------")
 
+def crear_csv(nombre,master_table):
+    with open (nombre+'.csv','w') as f:
+        fieldnames = ["Mes de Suscripcion"]
+        tmplist = list(master_table)
+        for header1 in tmplist:
+            fieldnames.append(header1)
+        writer = csv.DictWriter(f, fieldnames)
+        writer.writeheader()
+        row1={"Mes de Suscripcion":"Insignias Emitidas"}
+        for r1 in tmplist:
+            tmpd4 = master_table[r1]
+            emitidas = tmpd4["Total Emitidas"]
+            row1[r1]=emitidas
+        writer.writerow(row1)
+        row2={"Mes de Suscripcion":"Insignias aceptadas"}
+        for r2 in tmplist:
+            tmpd4 = master_table[r2]
+            aceptadas = tmpd4["aceptadas"]
+            row2[r2]=aceptadas
+        writer.writerow(row2)
+        row3={"Mes de Suscripcion":"Insignias pendientes"}
+        for r3 in tmplist:
+            tmpd4 = master_table[r3]
+            pendientes = tmpd4["pendientes"]
+            row3[r3]=pendientes
+        writer.writerow(row3)
+        row4={"Mes de Suscripcion":"% Aceptadas"}
+        for r4 in tmplist:
+            tmpd4 = master_table[r4]
+            paceptadas = tmpd4["% Aceptadas"]
+            row4[r4]=paceptadas
+        writer.writerow(row4)
+        row5={"Mes de Suscripcion":"Banda Consumida"}
+        for r5 in tmplist:
+            tmpd4 = master_table[r5]
+            paceptadas = tmpd4["Volumen Compartidas"]
+            row5[r5]=paceptadas
+        writer.writerow(row5)
+        f.close()
+
+
 def ordenar_historial(historico, bandaIn=1):
     long1 = len(historico)
     c1 = 0
@@ -45,12 +88,9 @@ def ordenar_historial(historico, bandaIn=1):
         out1 = historico[c1]
         splited = out1["fecha"].split("-")
         #print(splited)
-        dict_split={"date":splited[0]+"-"+splited[1],"state":out1["state"]}
+        dict_split={"date":splited[0]+"-"+splited[1],"state":out1["state"],"user_id":out1["user_id"]}
         #print(dict_split)
         split_date.append(dict_split)
-        user_dict = {"user_id":out1["user_id"],"date":splited[0]+"-"+splited[1]}
-        users_dlist.append(user_dict)
-        users_list.append(out1["user_id"])
         c1+=1
     
     #print(users_dlist)
@@ -82,12 +122,37 @@ def ordenar_historial(historico, bandaIn=1):
     c2 = 0
     long2 = len(split_date)
     accept = 0
-    
+    new_user=[]
     #Ciclo While para calcular por mes las emisiones de las insignias
     while c2 < long2:
         dict_check = split_date[c2]
         for list_month in list_months:
+            # while usd1 < long_listu:
+            #     user1 = users_list[usd1]
+            #     if user1 != None:
+            #         long_registred = len(registred_user)
+            #         no_exist = True
+            #         fecha_in = False
+            #         usd3=0
+            #         while usd3 < long_registred:
+            #             if user1 == registred_user[usd3]:
+            #                 no_exist=False
+            #             usd3+=1
+            #         usd3=0
+            #         if no_exist:
+            #             while usd3 < long_listd:
+            #                 comparaciond = users_dlist[usd3]
+            #                 if comparaciond["user_id"] == user1 and comparaciond["date"] == list_month:
+            #                     fecha_in= True
+            #                 usd3+=1
+            #         if no_exist and fecha_in:
+            #             tempdict2 = master_table[list_month]
+            #             tempdict2["Banda Consumida"]+=1
+            #             registred_user.append(user1)
+            #     usd1+=1
+
             if dict_check["state"]!=None:
+                
                 if dict_check["state"] == 'accepted' and dict_check["date"]==list_month:
                     tempdict = master_table[list_month]
                     tempdict["aceptadas"]+=1
@@ -96,19 +161,39 @@ def ordenar_historial(historico, bandaIn=1):
                     tempdict["pendientes"]+=1
                 elif  dict_check["state"] == 'rejected' and dict_check["date"]==list_month:
                     tempdict = master_table[list_month]
-                    tempdict["rechazadas"]+=1                  
+                    tempdict["rechazadas"]+=1
+                check1 = dict_check["user_id"] in new_user
+                if not check1:
+                    tempdict["Banda Consumida"]+=1
+                    new_user.append(dict_check["user_id"])
+                              
         c2+=1
     
+    #print(registred_user)
+    #print(master_table)
+    #print(new_user)
+    keys_master = list(master_table)
+    for c4 in keys_master:
+        tmp_dict4 = master_table[c4]
+        r_aceptadas = tmp_dict4["aceptadas"]
+        r_pendientes = tmp_dict4["pendientes"]
+        r_rechazadas = tmp_dict4["rechazadas"]
+        rtotal = r_aceptadas + r_pendientes + r_rechazadas
+        porc_aceptadas = (r_aceptadas*100)/rtotal
+        r_banda = tmp_dict4["Banda Consumida"]
+        master_table[c4]={'aceptadas': r_aceptadas, 'pendientes': r_pendientes, 'rechazadas': r_rechazadas, 'Total Emitidas': rtotal, '% Aceptadas': porc_aceptadas, 'Banda Consumida': r_banda, 'Volumen Compartidas': random.randrange(10, 980)}
     
     #print(master_table)
     
-    for i3 in master_table:
-        c3=master_table[i3]
-        k1=c3["aceptadas"]+c3["pendientes"]+c3["rechazadas"]
-        c3["Total Emitidas"]=k1
-        k2 = (c3["aceptadas"]*100)/k1
-        c3["% Aceptadas"]=k2
-    #print(master_table)
+    # for i3 in master_table:
+    #     c3=master_table[i3]
+    #     k1=c3["aceptadas"]+c3["pendientes"]+c3["rechazadas"]
+    #     c3["Total Emitidas"]=k1
+    #     k2 = (c3["aceptadas"]*100)/k1
+    #     c3["% Aceptadas"]=k2
+    print(master_table)
+
+    return master_table
         
     
     
@@ -132,12 +217,9 @@ def lectura_Acclaim(acclaim_token,idOrg):
 
       for i in range(0,longitud_resp_data1):
           badge1 = data1[i]
-          tmp1 = badge1["user"]
+          tmp2 = badge1["recipient_email"]
+          #print(tmp2)
           #print(tmp1.keys())
-          if tmp1.keys() != s1.keys():
-              tmp2 = tmp1["id"]
-          else:
-              tmp2 = None
           dict_badge = {"fecha": badge1["issued_at"], "state": None, "user_id": tmp2}
           if badge1["state"] == "accepted":
               resp_array[0] += 1
@@ -198,5 +280,6 @@ for c in range(i):
     print(respuesta["resumen"])
     #Year - Month - Day
     #print(respuesta["historialBadges"])
-    ordenar_historial(respuesta["historialBadges"])
+    tabla_maestra = ordenar_historial(respuesta["historialBadges"])
+    crear_csv(nameOrg[c],tabla_maestra)
     
