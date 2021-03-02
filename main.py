@@ -38,6 +38,8 @@ def ordenar_historial(historico, bandaIn=1):
     long1 = len(historico)
     c1 = 0
     split_date=[]
+    users_dlist=[]
+    users_list=[]
     while c1 < long1:
         #print(historico[c1])
         out1 = historico[c1]
@@ -46,7 +48,12 @@ def ordenar_historial(historico, bandaIn=1):
         dict_split={"date":splited[0]+"-"+splited[1],"state":out1["state"]}
         #print(dict_split)
         split_date.append(dict_split)
+        user_dict = {"user_id":out1["user_id"],"date":splited[0]+"-"+splited[1]}
+        users_dlist.append(user_dict)
+        users_list.append(out1["user_id"])
         c1+=1
+    
+    #print(users_dlist)
     
     #Deteccion de fechas Year-Month 
     temp = split_date[0]
@@ -101,9 +108,7 @@ def ordenar_historial(historico, bandaIn=1):
         c3["Total Emitidas"]=k1
         k2 = (c3["aceptadas"]*100)/k1
         c3["% Aceptadas"]=k2
-        
-    
-    print(master_table)
+    #print(master_table)
         
     
     
@@ -123,10 +128,17 @@ def lectura_Acclaim(acclaim_token,idOrg):
       resp_json = r.json()
       data1 = resp_json["data"]
       longitud_resp_data1 = len(data1)
+      s1 = {}
 
       for i in range(0,longitud_resp_data1):
           badge1 = data1[i]
-          dict_badge = {"fecha": badge1["issued_at"], "state": None}
+          tmp1 = badge1["user"]
+          #print(tmp1.keys())
+          if tmp1.keys() != s1.keys():
+              tmp2 = tmp1["id"]
+          else:
+              tmp2 = None
+          dict_badge = {"fecha": badge1["issued_at"], "state": None, "user_id": tmp2}
           if badge1["state"] == "accepted":
               resp_array[0] += 1
               dict_badge["state"]="accepted"
