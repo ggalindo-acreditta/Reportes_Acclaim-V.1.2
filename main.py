@@ -272,6 +272,7 @@ for c in range(i):
 
   if c !=0:
     print("--------------------------------------------------------")
+    print("--------------------------------------------------------")
     time.sleep(0.25)
     print("Se esta cargando el proceso para la organizacion #"+str(c))
     print(nameOrg[c])
